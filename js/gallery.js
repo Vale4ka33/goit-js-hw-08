@@ -66,6 +66,7 @@ const images = [
 
 
 const container = document.querySelector('.gallery');
+let instance;
 
 function createMarkUp(arr) {
   return arr.map(item => `
@@ -83,8 +84,47 @@ function createMarkUp(arr) {
 
 container.innerHTML = createMarkUp(images);
 
-container.addEventListener('click', (event) => {
-  if (event.target.closest('.gallery-link'))
+container.addEventListener('click', handleClick);
+
+function handleClick(event) {
+  const link = event.target.closest('.gallery-link');
+  if (!link) {
+    return;
+  }
+
   event.preventDefault();
-})
+
+  const image = link.querySelector('.gallery-image');
+  const altText = image.getAttribute('alt');
+  console.log(altText);
+
+  const foundImage = images.find(image => image.description === altText);
+
+  // Створення модального вікна 
+  instance = basicLightbox.create(`
+    <div class="modal">
+      <img src="${foundImage.original}" alt="${foundImage.description}">
+    </div>`,
+    {
+      onShow: () => {
+        document.addEventListener('keydown', closeWindow);
+      },
+      onClose: ( )=> {
+        document.removeEventListener('keydown', closeWindow);
+      }
+    
+  });
+
+  instance.show();
+  
+}
+
+// Додавання обробника події для закриття модального вікна при натисканні на клавішу "Escape"
+function closeWindow(event) {
+  if (event.code === 'Escape') {
+    instance.close();
+  }
+}
+
+
 
